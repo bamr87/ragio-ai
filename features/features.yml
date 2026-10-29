@@ -96,3 +96,57 @@ features:
     docs: DESIGN.md
     prd: [FR12, FR7, FR9, FR10]
     tags: [fastapi, ui]
+  - id: RAGIO-010
+    title: "index the full archive and reach eval hit@5 ≥ 0.85 on eval/questions.j"
+    description: "Phase 1: index the full archive and reach eval hit@5 ≥ 0.85 on eval/questions.jsonl."
+    implemented: false
+    status: planned
+    surface: api
+    docs: DESIGN.md
+    prd: [FR14]
+    tags: [roadmap, phase-1]
+  - id: RAGIO-011
+    title: "route questions to candidate episodes via the summary collection befor"
+    description: "Phase 2: route questions to candidate episodes via the summary collection before chunk retrieval."
+    implemented: false
+    status: planned
+    surface: api
+    docs: DESIGN.md
+    prd: [FR15]
+    tags: [roadmap, phase-2]
+  - id: RAGIO-012
+    title: "GPU deep-listen mode re-transcribing cited ranges with a larger Whispe"
+    description: "Phase 3: GPU deep-listen mode re-transcribing cited ranges with a larger Whisper model."
+    implemented: false
+    status: planned
+    surface: api
+    docs: DESIGN.md
+    prd: [FR16]
+    tags: [roadmap, phase-3]
+  - id: RAGIO-013
+    title: "creative modes and an episode/people/themes knowledge graph"
+    description: "Phase 4: creative modes and an episode/people/themes knowledge graph."
+    implemented: false
+    status: planned
+    surface: api
+    docs: DESIGN.md
+    prd: [FR17]
+    tags: [roadmap, phase-4]
+  - id: RAGIO-014
+    title: "speaker diarization attached to transcript segments"
+    description: "Phase 5: speaker diarization attached to transcript segments."
+    implemented: false
+    status: planned
+    surface: api
+    docs: DESIGN.md
+    prd: [FR18]
+    tags: [roadmap, phase-5]
+  - id: RAGIO-015
+    title: "Export pipeline metrics and traces over OTLP to bamr87/fleet-observe"
+    description: "Export pipeline metrics and traces over OTLP to bamr87/fleet-observe."
+    implemented: false
+    status: planned
+    surface: api
+    docs: DESIGN.md
+    prd: [FR19]
+    tags: [roadmap, phase-5]

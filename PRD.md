@@ -40,6 +40,15 @@ One researcher running the whole stack on a single machine (Apple Silicon Mac or
 - FR12: Offer a browser UI to browse episodes and timestamped transcripts, ask questions, see sources and play clips.
 - FR13: Report pipeline progress (episodes per stage).
 
+### Roadmap (planned)
+
+- FR14: Phase 1: index the full archive and reach eval hit@5 ≥ 0.85 on eval/questions.jsonl
+- FR15: Phase 2: route questions to candidate episodes via the summary collection before chunk retrieval
+- FR16: Phase 3: GPU deep-listen mode re-transcribing cited ranges with a larger Whisper model
+- FR17: Phase 4: creative modes and an episode/people/themes knowledge graph
+- FR18: Phase 5: speaker diarization attached to transcript segments
+- FR19: Export pipeline metrics and traces over OTLP to bamr87/fleet-observe
+
 ### Non-functional
 
 - NFR1: Fully local — the only network calls are the RSS feed and MP3 downloads.
@@ -69,6 +78,12 @@ Every user-facing capability has a stable id in the feature catalog [`features/f
 | [RAGIO-007](features/features.yml) | Deep listen | partial | [`ragio/clips.py`](ragio/clips.py) · [`README.md`](README.md) | FR10 |
 | [RAGIO-008](features/features.yml) | Retrieval evaluation | shipped | [`ragio/evaluate.py`](ragio/evaluate.py) · [`DESIGN.md`](DESIGN.md) | FR11 |
 | [RAGIO-009](features/features.yml) | Web app | shipped | [`app.py`](app.py) · [`DESIGN.md`](DESIGN.md) | FR12, FR7, FR9, FR10 |
+| [RAGIO-010](features/features.yml) | index the full archive and reach eval hit@5 ≥ 0.85 on eval/questions.j | planned | [`DESIGN.md`](DESIGN.md) | FR14 |
+| [RAGIO-011](features/features.yml) | route questions to candidate episodes via the summary collection befor | planned | [`DESIGN.md`](DESIGN.md) | FR15 |
+| [RAGIO-012](features/features.yml) | GPU deep-listen mode re-transcribing cited ranges with a larger Whispe | planned | [`DESIGN.md`](DESIGN.md) | FR16 |
+| [RAGIO-013](features/features.yml) | creative modes and an episode/people/themes knowledge graph | planned | [`DESIGN.md`](DESIGN.md) | FR17 |
+| [RAGIO-014](features/features.yml) | speaker diarization attached to transcript segments | planned | [`DESIGN.md`](DESIGN.md) | FR18 |
+| [RAGIO-015](features/features.yml) | Export pipeline metrics and traces over OTLP to bamr87/fleet-observe | planned | [`DESIGN.md`](DESIGN.md) | FR19 |
 
 **Requirement → feature trace**
 
@@ -92,4 +107,10 @@ Every user-facing capability has a stable id in the feature catalog [`features/f
 | FR10 | RAGIO-007, RAGIO-009 |
 | FR11 | RAGIO-008 |
 | FR12 | RAGIO-009 |
+| FR14 | RAGIO-010 |
+| FR15 | RAGIO-011 |
+| FR16 | RAGIO-012 |
+| FR17 | RAGIO-013 |
+| FR18 | RAGIO-014 |
+| FR19 | RAGIO-015 |
 <!-- features:end -->

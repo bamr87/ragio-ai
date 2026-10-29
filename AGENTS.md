@@ -61,6 +61,8 @@ python -m ragio eval                      # retrieval hit@1/3/5 (needs an indexe
 
 Member of the bamr87 fleet. The standards live in the hub: <https://github.com/bamr87/bamr87/tree/main/specs> (the Universal Project Standard). The repo's SDLC declaration is `.github/sdlc.yml`.
 
+Continuous evolution: the hub's weekly repo-evolution loop and backlog fan-out open PRs here (never merge); the local `evolve` lane (`.github/workflows/evolve.yml`, role `.claude/agents/builder.md`) builds the next `status: planned` feature only when the `EVOLVE_ENABLED` repo variable is `true`.
+
 ## Standard deviations
 
 - UPS-QA-10 waived until 2027-03-01: no automated test suite yet; the pipeline depends on Ollama, Qdrant and Whisper models. First tests are a follow-up.

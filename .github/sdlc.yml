@@ -25,7 +25,7 @@ modules:
   features: true          # features/features.yml (features/v1)
   issue_autopilot: false  # .issues/ (hub templates/issue-autopilot)
   content_queue: false    # _data/backlog.yml content queue (content-queue/v1), NOT the engineering backlog
-  ai_lanes: false         # fleet.manifest.yml + <LANE>_ENABLED kill switches
+  ai_lanes: true          # fleet.manifest.yml + <LANE>_ENABLED kill switches
 
 adr_path: docs/adr        # where ADRs live: NNNN-slug.md + README.md index (decision D2)
 

@@ -1,0 +1,2 @@
+# Model for this repo's AI lanes (read by bamr87/bamr87 .github/actions/claude-run). Empty = fleet default.
+model: ""

@@ -1,0 +1,34 @@
+# fleet.manifest.yml — this repository's AI fleet, in the shared 'fleet/v1'
+# vocabulary (bamr87/gitorio packages/wtd/docs/FLEET-SPEC.md). Hand-written.
+spec_version: fleet/v1
+repo: bamr87/ragio-ai
+provenance: declared
+summary: "Fully local RAG engine over Radiolab episodes: Whisper, Qdrant, LlamaIndex, Ollama, FastAPI"
+lanes:
+- id: claude
+  kind: mention
+  harness: claude-code-action
+  implementation: .github/workflows/claude.yml
+  description: "@claude mention handler (agent-context kit)"
+  triggers:
+  - kind: event
+    events: [issue_comment, issues, pull_request_review, pull_request_review_comment]
+  switch: null
+  uses_tokens: [CLAUDE_CODE_OAUTH_TOKEN, ANTHROPIC_API_KEY]
+  guardrails:
+    never_merges: true
+    opens_pull_requests: true
+- id: evolve
+  kind: scheduled
+  harness: engine
+  implementation: .github/workflows/evolve.yml
+  description: "Builds the next planned roadmap feature as ONE PR (ai-runner kit). OFF until the EVOLVE_ENABLED repo variable is true."
+  triggers:
+  - kind: schedule
+    cron: 17 6 * * 1
+  - kind: dispatch
+  switch: EVOLVE_ENABLED
+  uses_tokens: [CLAUDE_CODE_OAUTH_TOKEN, ANTHROPIC_API_KEY, FLEET_TOKEN]
+  guardrails:
+    never_merges: true
+    opens_pull_requests: true
