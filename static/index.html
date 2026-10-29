@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ragio-Lab</title>
+<style>
+  :root { --bg:#0f1115; --panel:#181b22; --ink:#e8e8ea; --muted:#9aa0ab; --accent:#f5c518; --line:#2a2f3a; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif; }
+  main { max-width:860px; margin:0 auto; padding:32px 16px 80px; }
+  h1 { font-size:22px; margin:0 0 4px; letter-spacing:.02em; }
+  h1 span { color:var(--accent); }
+  p.sub { color:var(--muted); margin:0 0 24px; }
+  form { display:flex; gap:8px; }
+  input { flex:1; padding:12px 14px; border-radius:10px; border:1px solid var(--line); background:var(--panel); color:var(--ink); font-size:15px; }
+  button { padding:12px 18px; border-radius:10px; border:0; background:var(--accent); color:#111; font-weight:600; cursor:pointer; }
+  button:disabled { opacity:.5; cursor:default; }
+  #answer { white-space:pre-wrap; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px; margin-top:20px; min-height:60px; }
+  .src { border-top:1px solid var(--line); padding:14px 0; }
+  .src b { color:var(--accent); }
+  .src .meta { color:var(--muted); font-size:13px; }
+  .src .ex { margin:6px 0; color:#c9cdd4; font-size:14px; }
+  audio { width:100%; height:32px; margin-top:6px; }
+  a { color:var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Ragio<span>-</span>Lab</h1>
+  <p class="sub">Ask anything across every Radiolab episode. Answers cite the exact moment; press play to hear it.</p>
+  <form id="f">
+    <input id="q" placeholder="e.g. Which episodes talk about the placebo effect, and how do they differ?" autofocus>
+    <button id="go">Ask</button>
+  </form>
+  <div id="answer" hidden></div>
+  <div id="sources"></div>
+</main>
+<script>
+const f = document.getElementById('f'), q = document.getElementById('q'), go = document.getElementById('go');
+const ans = document.getElementById('answer'), srcs = document.getElementById('sources');
+f.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  go.disabled = true; ans.hidden = false; ans.textContent = ''; srcs.innerHTML = '';
+  const res = await fetch('/api/ask/stream', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({question: q.value})});
+  const reader = res.body.getReader(); const dec = new TextDecoder(); let buf = '';
+  while (true) {
+    const {value, done} = await reader.read(); if (done) break;
+    buf += dec.decode(value, {stream:true});
+    let i; while ((i = buf.indexOf('\n\n')) >= 0) {
+      const line = buf.slice(0, i).trim(); buf = buf.slice(i + 2);
+      if (!line.startsWith('data: ')) continue;
+      const ev = JSON.parse(line.slice(6));
+      if (ev.type === 'token') ans.textContent += ev.text;
+      if (ev.type === 'sources') renderSources(ev.sources);
+    }
+  }
+  go.disabled = false;
+});
+function renderSources(list) {
+  srcs.innerHTML = list.map(s => `
+    <div class="src">
+      <b>[${s.label}]</b> ${esc(s.title)} <span class="meta">· ${s.published} · ${s.start_hms}–${s.end_hms}
+        ${s.page_url ? `· <a href="${s.page_url}" target="_blank" rel="noopener">episode page</a>` : ''}</span>
+      <div class="ex">${esc(s.excerpt)}</div>
+      <audio controls preload="none" src="${s.clip_url}"></audio>
+    </div>`).join('');
+}
+function esc(t) { return (t || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+</script>
+</body>
+</html>
