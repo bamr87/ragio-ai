@@ -1,0 +1,36 @@
+name: Release
+
+# Scaffolded by tools/adopt-release.sh — Conventional Commits drive release-please
+# (opens a release PR that bumps the version + CHANGELOG); merging it tags, releases,
+# and publishes. Shared logic lives in bamr87/.github. See release-please-config.json.
+
+on:
+  push:
+    # The repo's default branch is `main` — the adopt-release.sh scaffold shipped
+    # `master`, which never matched, so release-please had zero runs in history.
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    uses: bamr87/bamr87/.github/workflows/release-please.yml@v2
+    permissions:
+      contents: write
+      pull-requests: write
+    secrets: inherit
+
+  publish:
+    needs: release
+    if: needs.release.outputs.release_created == 'true'
+    uses: bamr87/.github/.github/workflows/publish.yml@v1
+    with:
+      tag: ${{ needs.release.outputs.tag_name }}
+      version: ${{ needs.release.outputs.version }}
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    secrets: inherit

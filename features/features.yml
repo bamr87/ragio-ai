@@ -1,0 +1,152 @@
+# features/features.yml — THE FEATURE INDEX for ragio-ai
+# Schema: features/v1 (bamr87/bamr87 features/SCHEMA.md), governance kit fields `status` + `prd`.
+# Validate: python3 <hub>/tools/governance_lint.py check .
+schema: features/v1
+repo: bamr87/ragio-ai
+prd: PRD.md
+
+features:
+  - id: RAGIO-001
+    title: Episode catalog
+    description: Parse the Radiolab RSS feed into SQLite with per-episode pipeline status, and download MP3s resumably.
+    implemented: true
+    status: shipped
+    surface: cli
+    link: ragio/catalog.py
+    docs: README.md
+    prd: [FR1, FR2, FR13, NFR2]
+    tags: [pipeline]
+  - id: RAGIO-002
+    title: Local Whisper transcription
+    description: Transcribe episodes locally with faster-whisper or mlx-whisper into timestamped segments with word timings, cached as JSON.
+    implemented: true
+    status: shipped
+    surface: cli
+    link: ragio/transcribe.py
+    docs: DESIGN.md
+    prd: [FR3, NFR1, NFR2]
+    tags: [pipeline, whisper]
+  - id: RAGIO-003
+    title: Segment chunking
+    description: Merge Whisper segments into ~220-word, ≤120 s retrieval windows with one-segment overlap.
+    implemented: true
+    status: shipped
+    surface: cli
+    link: ragio/chunk.py
+    docs: DESIGN.md
+    prd: [FR4]
+    tags: [pipeline]
+  - id: RAGIO-004
+    title: Vector index and episode summaries
+    description: Embed windows into Qdrant (dense + BM25) with deterministic ids, plus an optional episode-summary collection.
+    implemented: true
+    status: shipped
+    surface: cli
+    link: ragio/index.py
+    docs: DESIGN.md
+    prd: [FR5, FR6]
+    tags: [pipeline, qdrant, llamaindex]
+  - id: RAGIO-005
+    title: Hybrid RAG with citations
+    description: Ask a question; hybrid retrieval, neighbor expansion and an Ollama LLM return an answer citing episode timestamps (CLI, JSON, SSE), plus retrieval-only search.
+    implemented: true
+    status: shipped
+    surface: api
+    link: ragio/rag.py
+    docs: DESIGN.md
+    prd: [FR7, FR8, NFR4, NFR6]
+    tags: [rag, ollama]
+  - id: RAGIO-006
+    title: Audio clips
+    description: Play the exact cited moment — ffmpeg cuts and caches a clip for an episode time range.
+    implemented: true
+    status: shipped
+    surface: api
+    link: ragio/clips.py
+    docs: DESIGN.md
+    prd: [FR9, NFR5]
+    tags: [audio]
+  - id: RAGIO-007
+    title: Deep listen
+    description: Ask an audio model (Qwen2-Audio) about tone, music or sound design in a short retrieved clip.
+    implemented: true
+    status: partial
+    surface: api
+    link: ragio/clips.py
+    docs: README.md
+    prd: [FR10]
+    tags: [audio, optional]
+  - id: RAGIO-008
+    title: Retrieval evaluation
+    description: Print hit@1/3/5 for golden questions in eval/questions.jsonl.
+    implemented: true
+    status: shipped
+    surface: cli
+    link: ragio/evaluate.py
+    docs: DESIGN.md
+    prd: [FR11]
+    tags: [eval]
+  - id: RAGIO-009
+    title: Web app
+    description: FastAPI app and single-page UI to browse episodes and transcripts, ask questions with streamed answers, and play cited clips.
+    implemented: true
+    status: shipped
+    surface: ui
+    link: app.py
+    docs: DESIGN.md
+    prd: [FR12, FR7, FR9, FR10]
+    tags: [fastapi, ui]
+  - id: RAGIO-010
+    title: "index the full archive and reach eval hit@5 ≥ 0.85 on eval/questions.j"
+    description: "Phase 1: index the full archive and reach eval hit@5 ≥ 0.85 on eval/questions.jsonl."
+    implemented: false
+    status: planned
+    surface: api
+    docs: DESIGN.md
+    prd: [FR14]
+    tags: [roadmap, phase-1]
+  - id: RAGIO-011
+    title: "route questions to candidate episodes via the summary collection befor"
+    description: "Phase 2: route questions to candidate episodes via the summary collection before chunk retrieval."
+    implemented: false
+    status: planned
+    surface: api
+    docs: DESIGN.md
+    prd: [FR15]
+    tags: [roadmap, phase-2]
+  - id: RAGIO-012
+    title: "GPU deep-listen mode re-transcribing cited ranges with a larger Whispe"
+    description: "Phase 3: GPU deep-listen mode re-transcribing cited ranges with a larger Whisper model."
+    implemented: false
+    status: planned
+    surface: api
+    docs: DESIGN.md
+    prd: [FR16]
+    tags: [roadmap, phase-3]
+  - id: RAGIO-013
+    title: "creative modes and an episode/people/themes knowledge graph"
+    description: "Phase 4: creative modes and an episode/people/themes knowledge graph."
+    implemented: false
+    status: planned
+    surface: api
+    docs: DESIGN.md
+    prd: [FR17]
+    tags: [roadmap, phase-4]
+  - id: RAGIO-014
+    title: "speaker diarization attached to transcript segments"
+    description: "Phase 5: speaker diarization attached to transcript segments."
+    implemented: false
+    status: planned
+    surface: api
+    docs: DESIGN.md
+    prd: [FR18]
+    tags: [roadmap, phase-5]
+  - id: RAGIO-015
+    title: "Export pipeline metrics and traces over OTLP to bamr87/fleet-observe"
+    description: "Export pipeline metrics and traces over OTLP to bamr87/fleet-observe."
+    implemented: false
+    status: planned
+    surface: api
+    docs: DESIGN.md
+    prd: [FR19]
+    tags: [roadmap, phase-5]
