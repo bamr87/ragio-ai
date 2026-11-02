@@ -15,6 +15,7 @@ Endpoints
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
@@ -38,8 +39,8 @@ class ListenRequest(BaseModel):
 
 @app.get("/", response_class=HTMLResponse)
 def home() -> str:
-    from pathlib import Path
-    return Path("static/index.html").read_text()
+    # Resolve next to this file so `uvicorn app:app` works from any working directory.
+    return (Path(__file__).resolve().parent / "static" / "index.html").read_text()
 
 
 @app.get("/api/episodes")
@@ -93,9 +94,12 @@ def clip(ep: str, start: float, end: float):
 
 @app.post("/api/listen")
 def listen(req: ListenRequest):
-    if req.end - req.start > 180:
-        raise HTTPException(400, "keep deep-listen clips under 3 minutes")
-    wav = clips.cut_clip(req.episode_id, req.start, req.end, fmt="wav")
+    if req.end <= req.start or req.end - req.start > 180:
+        raise HTTPException(400, "deep-listen clips must be 0–180 seconds long")
+    try:
+        wav = clips.cut_clip(req.episode_id, req.start, req.end, fmt="wav")
+    except FileNotFoundError as exc:
+        raise HTTPException(404, str(exc)) from exc
     try:
         return {"answer": clips.listen(wav, req.prompt)}
     except NotImplementedError as exc:
