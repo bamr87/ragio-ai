@@ -25,7 +25,7 @@ lanes:
   description: "Builds the next planned roadmap feature as ONE PR (ai-runner kit). OFF until the EVOLVE_ENABLED repo variable is true."
   triggers:
   - kind: schedule
-    cron: 17 6 * * 1
+    cron: 17 17 * * 3
   - kind: dispatch
   switch: EVOLVE_ENABLED
   uses_tokens: [CLAUDE_CODE_OAUTH_TOKEN, ANTHROPIC_API_KEY, FLEET_TOKEN]
