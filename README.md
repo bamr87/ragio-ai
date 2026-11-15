@@ -60,10 +60,7 @@ episode (id, title, published, description, audio_url, page_url, summary, status
         └── segment[idx] (start, end, text) ← raw Whisper segments; exact word timing lives in the JSON
 ```
 
-Qdrant point ids are `uuid5(episode_id:idx)`, so re-indexing an episode upserts instead of duplicating.
-Every Qdrant payload carries `episode_id, idx, title, published, start, end, page_url` — enough to jump
-straight to the moment in the audio without touching SQLite. SQLite is consulted only to expand a hit
-with its neighboring windows (parent context) before generation.
+Qdrant point ids are `uuid5(episode_id:idx)`, so re-indexing an episode upserts instead of duplicating. Every Qdrant payload carries `episode_id, idx, title, published, start, end, page_url` — enough to jump straight to the moment in the audio without touching SQLite. SQLite is consulted only to expand a hit with its neighboring windows (parent context) before generation.
 
 ## Query flow (`ragio/rag.py`)
 
@@ -83,33 +80,23 @@ Radiolab has ~700+ episodes averaging ~45 min ⇒ roughly **500–600 hours of a
 | `faster-whisper` large-v3 fp16 | RTX 3090/4090 | ~30–50× | ~12–20 h |
 | `faster-whisper` medium.en int8 | CPU only | ~1–2× | weeks — use `--limit` and let it run |
 
-Transcription is resumable and idempotent (transcript JSON is cached), so run it in the background
-over several nights. Everything downstream (chunk/index) is minutes, not hours.
+Transcription is resumable and idempotent (transcript JSON is cached), so run it in the background over several nights. Everything downstream (chunk/index) is minutes, not hours.
 
 ## Configuration
 
-All knobs are environment variables with defaults in `ragio/config.py` — chunk size, top-k, hybrid
-on/off, model names, collection names, audio backend. See `.env.example`.
+All knobs are environment variables with defaults in `ragio/config.py` — chunk size, top-k, hybrid on/off, model names, collection names, audio backend. See `.env.example`.
 
 ## Evaluation
 
-Put 20–30 questions with known answers in `eval/questions.jsonl` (`python -m ragio search "…"` shows
-episode ids), then `python -m ragio eval` prints hit@1/3/5. Re-run after every retrieval change.
+Put 20–30 questions with known answers in `eval/questions.jsonl` (`python -m ragio search "…"` shows episode ids), then `python -m ragio eval` prints hit@1/3/5. Re-run after every retrieval change.
 
 ## A note on the audio-native model
 
-Ollama serves text and vision models; it does not (as of this writing) run audio-input models, and the
-model usually called "Qwen2.5-Audio" ships as **Qwen2-Audio-7B-Instruct** (Qwen2.5-Omni is the newer
-any-to-any successor). Ragio therefore uses a text LLM in Ollama as the brain and treats the audio
-model as a *tool* invoked on a short retrieved clip: `RAGIO_AUDIO_BACKEND=openai-compatible` with
-`vllm serve Qwen/Qwen2-Audio-7B-Instruct --port 8001` on a GPU box, or `transformers` in-process.
-Llama-3.2-Vision is a vision model — no benefit for a radio archive; keep it for a future
-"episode art / show notes images" feature if you like.
+Ollama serves text and vision models; it does not (as of this writing) run audio-input models, and the model usually called "Qwen2.5-Audio" ships as **Qwen2-Audio-7B-Instruct** (Qwen2.5-Omni is the newer any-to-any successor). Ragio therefore uses a text LLM in Ollama as the brain and treats the audio model as a *tool* invoked on a short retrieved clip: `RAGIO_AUDIO_BACKEND=openai-compatible` with `vllm serve Qwen/Qwen2-Audio-7B-Instruct --port 8001` on a GPU box, or `transformers` in-process. Llama-3.2-Vision is a vision model — no benefit for a radio archive; keep it for a future "episode art / show notes images" feature if you like.
 
 ## Legal
 
-The audio and transcripts belong to WNYC / Radiolab. This project is for personal research and
-analysis; don't redistribute the audio, clips, or transcripts.
+The audio and transcripts belong to WNYC / Radiolab. This project is for personal research and analysis; don't redistribute the audio, clips, or transcripts.
 
 ## Layout
 
