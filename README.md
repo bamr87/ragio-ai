@@ -94,9 +94,11 @@ Put 20–30 questions with known answers in `eval/questions.jsonl` (`python -m r
 
 Ollama serves text and vision models; it does not (as of this writing) run audio-input models, and the model usually called "Qwen2.5-Audio" ships as **Qwen2-Audio-7B-Instruct** (Qwen2.5-Omni is the newer any-to-any successor). Ragio therefore uses a text LLM in Ollama as the brain and treats the audio model as a *tool* invoked on a short retrieved clip: `RAGIO_AUDIO_BACKEND=openai-compatible` with `vllm serve Qwen/Qwen2-Audio-7B-Instruct --port 8001` on a GPU box, or `transformers` in-process. Llama-3.2-Vision is a vision model — no benefit for a radio archive; keep it for a future "episode art / show notes images" feature if you like.
 
-## Legal
+## License
 
-The audio and transcripts belong to WNYC / Radiolab. This project is for personal research and analysis; don't redistribute the audio, clips, or transcripts.
+The code in this repository is MIT-licensed: see [LICENSE](LICENSE).
+
+The licence does not cover Radiolab's content. The audio and transcripts belong to WNYC / Radiolab. This project is for personal research and analysis; don't redistribute the audio, clips, or transcripts.
 
 ## Layout
 
