@@ -52,6 +52,16 @@ make serve                        # http://localhost:8000
 
 `python -m ragio status` shows how many episodes are at each stage.
 
+## Endpoints
+
+`make serve` serves the UI at `/` and the JSON API under `/api/`; [DESIGN.md § 6](DESIGN.md#6-api-fastapi-apppy) lists every route. Three operational probes sit beside them. They need no authentication and are sent with `Cache-Control: no-store`, so a container health check or a monitor can poll them:
+
+| Route | Answers |
+| --- | --- |
+| `GET /healthz` | Liveness: `200 {"status":"ok"}`. Touches neither SQLite nor Qdrant. |
+| `GET /readyz` | Readiness: `200 {"status":"ok","checks":{"db":"ok","qdrant":"ok"}}` when SQLite answers `SELECT 1` and Qdrant answers within 1 s; otherwise `503` with `"status":"degraded"` and the failing check's error in place of `"ok"`. Ollama is not checked. |
+| `GET /version` | `{"name":"ragio-lab","version":"<release-please version>","commit":"$GIT_SHA","built_at":"$BUILT_AT"}`; `commit` and `built_at` are `null` when the variable is unset. |
+
 ## Data model: parent → child
 
 ```
@@ -126,4 +136,5 @@ ragio/clips.py        ffmpeg clips + audio-native "deep listen"
 ragio/evaluate.py     retrieval hit-rate
 static/index.html     the UI
 eval/questions.jsonl  your golden questions
+tests/                offline tests (python -m pytest -q; no Qdrant, Ollama or corpus needed)
 ```
