@@ -150,3 +150,11 @@ features:
     docs: DESIGN.md
     prd: [FR19]
     tags: [roadmap, phase-5]
+  - id: RAGIO-016
+    title: "Missions in constitution §1"
+    description: "Three product missions under one direction statement, ratified through amendment 0002."
+    implemented: false
+    status: planned
+    prd: ["§1.1"]
+    surface: docs
+    docs: "docs/constitution.md"

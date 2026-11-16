@@ -2,7 +2,7 @@
 
 # ragio-ai
 
-> Ragio-Lab: a fully local RAG engine over every Radiolab episode — Whisper transcripts with exact timestamps, SQLite, Qdrant, LlamaIndex, Ollama and a FastAPI web app.
+> Ragio-Lab's direction is to become the ultimate open home for all things grounded audio knowledge: data, tools, resources and transparency, with a local Radiolab archive, second-accurate citations, playable clips, and cited AI for everyone ([constitution](docs/constitution.md) §1).
 
 **Read [docs/constitution.md](docs/constitution.md) first.** It wins over this file when they disagree.
 

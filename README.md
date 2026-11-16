@@ -1,5 +1,7 @@
 # Ragio-Lab
 
+> Ragio-Lab's direction is to become the ultimate open home for all things grounded audio knowledge: data, tools, resources and transparency, with a local Radiolab archive, second-accurate citations, playable clips, and cited AI for everyone ([constitution](docs/constitution.md) §1).
+
 A fully local AI engine whose knowledge base is **every Radiolab episode** — audio, transcripts with exact timestamps, and episode context — served through a RAG stack you can query, review, and build on.
 
 ```
