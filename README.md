@@ -84,7 +84,7 @@ The UI plays every source from `/api/clip`, and `/api/listen` cuts the same kind
 | `503` `ffmpeg not found on PATH` | ffmpeg isn't installed, or isn't on the `PATH` of the process running `make serve` | Install ffmpeg (`brew install ffmpeg`, `apt install ffmpeg`); the next request finds it |
 | `502` `ffmpeg failed: …` | ffmpeg ran and failed on that episode's audio; the message is its last error line | Check or re-download the episode's MP3 under `data/audio/`. Nothing was cached, so a retry runs the cut again |
 
-A clip is cached in `data/clips/` only when ffmpeg succeeds. Earlier versions could leave a truncated clip there after a failed cut and serve it from then on: if a clip plays short or not at all, delete `data/clips/`. It is only a cache, and clips are cut again on demand.
+A clip is cached in `data/clips/` only when ffmpeg succeeds. Earlier versions could leave a truncated clip there after a failed cut and serve it from then on: if a clip plays short or not at all, delete `data/clips/`. It is only a cache: there is no need to stop the server, and clips are cut again on demand.
 
 ## Compute plan
 

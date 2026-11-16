@@ -39,6 +39,9 @@ def _ffmpeg(args: list[str], out: Path) -> Path:
     exe = shutil.which("ffmpeg")
     if exe is None:
         raise FfmpegMissing("ffmpeg not found on PATH; install ffmpeg")
+    # config creates the clip cache once, at import; recreate it if it was deleted since, or
+    # mkstemp's FileNotFoundError would reach the API as a 404 that looks like a missing episode.
+    out.parent.mkdir(parents=True, exist_ok=True)
     fd, name = tempfile.mkstemp(dir=out.parent, prefix=f".{out.stem}.", suffix=out.suffix)
     os.close(fd)
     tmp = Path(name)

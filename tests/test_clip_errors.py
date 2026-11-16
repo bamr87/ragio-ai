@@ -175,6 +175,16 @@ class ClipErrorTests(unittest.TestCase):
         self.assertEqual(second.content, b"ID3 a clip")
         self.assertEqual(self.ffmpeg_calls(), 1, "the second request is served from the cache")
 
+    def test_deleted_clip_cache_is_recreated(self) -> None:
+        # The README says data/clips/ is safe to delete while the server runs; config only creates
+        # it at import, so the cut has to recreate it rather than answer 404.
+        self.with_stub_ffmpeg(exit_code=0, output="ID3 a clip")
+        self.clip_dir.rmdir()
+        response = self.clip()
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(response.content, b"ID3 a clip")
+        self.assertEqual(self.cached(), ["ep1_9.5_20.5.mp3"])
+
 
 if __name__ == "__main__":
     unittest.main()

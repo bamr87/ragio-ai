@@ -88,7 +88,7 @@ Optional step 7, **deep listen**: `POST /api/listen {episode_id, start, end, pro
 | GET | `/api/clip?ep&start&end` | MP3 clip (≤10 min) |
 | POST | `/api/listen` | audio-native answer about a clip (≤3 min) |
 
-`/api/clip` and `/api/listen` share their failure codes: 400 when `start` or `end` is not finite, `start` is negative or the window is empty or over the limit; 404 for an unknown episode or one without downloaded audio; 503 when ffmpeg is not on `PATH`; 502 when ffmpeg fails, with its last stderr line. ffmpeg writes to a temp file beside the cache path that keeps the real extension, and the file is moved into place only on success, so a failed cut caches nothing and a retry cuts again.
+`/api/clip` and `/api/listen` share their failure codes: 400 when `start` or `end` is not finite, `start` is negative or the window is empty or over the limit; 404 for an unknown episode or one without downloaded audio; 503 when ffmpeg is not on `PATH`; 502 when ffmpeg fails, with its last stderr line. ffmpeg writes to a temp file beside the cache path that keeps the real extension, and the file is moved into place only on success, so a failed cut caches nothing and a retry cuts again. A cut recreates `data/clips/` if it was deleted while the server runs.
 
 ## 7. Compute plan
 
