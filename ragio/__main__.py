@@ -8,6 +8,10 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from pathlib import Path
+
+# Resolved from the package, not the working directory, so `eval` works from anywhere.
+DEFAULT_EVAL_FILE = Path(__file__).resolve().parent.parent / "eval" / "questions.jsonl"
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -16,13 +20,13 @@ def main(argv: list[str] | None = None) -> None:
 
     sub.add_parser("catalog", help="parse the RSS feed into SQLite")
     d = sub.add_parser("download", help="download audio for catalogued episodes")
-    d.add_argument("--limit", type=int)
+    d.add_argument("--limit", type=int, help="download at most N pending episodes")
     t = sub.add_parser("transcribe", help="run Whisper on downloaded episodes")
-    t.add_argument("--limit", type=int)
-    t.add_argument("--backend", choices=["faster-whisper", "mlx"])
+    t.add_argument("--limit", type=int, help="transcribe at most N downloaded episodes")
+    t.add_argument("--backend", choices=["faster-whisper", "mlx"], help="override RAGIO_WHISPER_BACKEND")
     sub.add_parser("chunk", help="merge Whisper segments into retrieval windows")
     i = sub.add_parser("index", help="embed windows into Qdrant")
-    i.add_argument("--recreate", action="store_true")
+    i.add_argument("--recreate", action="store_true", help="drop and rebuild the Qdrant collection(s) first")
     i.add_argument("--summaries", action="store_true", help="also build the per-episode summary index (needs LLM)")
     a = sub.add_parser("ask", help="one-shot question from the terminal")
     a.add_argument("question")
@@ -30,7 +34,7 @@ def main(argv: list[str] | None = None) -> None:
     s.add_argument("question")
     sub.add_parser("status", help="pipeline progress")
     e = sub.add_parser("eval", help="retrieval hit-rate against eval/questions.jsonl")
-    e.add_argument("--file", default="eval/questions.jsonl")
+    e.add_argument("--file", default=str(DEFAULT_EVAL_FILE), help="JSONL of {\"q\": ..., \"expect\": [episode ids]}")
 
     args = p.parse_args(argv)
 
