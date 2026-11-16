@@ -27,7 +27,8 @@ make pipeline                             # 3 episodes end-to-end
 python -m ragio status
 make serve                                # http://localhost:8000
 
-# test (no automated suite yet — see Standard deviations)
+# test (a first offline suite; the UPS-QA-10 waiver stands — see Standard deviations)
+python -m pytest -q                       # tests/ (pip install pytest); offline: no Qdrant, Ollama or corpus (CI runs it)
 python -m compileall -q ragio app.py
 python -m ragio eval                      # retrieval hit@1/3/5 (needs an indexed corpus)
 
@@ -42,6 +43,7 @@ python -m ragio eval                      # retrieval hit@1/3/5 (needs an indexe
 | `ragio/` | The pipeline: `catalog`, `transcribe`, `chunk`, `index`, `rag`, `clips`, `evaluate`, `db`, `config`, CLI in `__main__.py` |
 | `static/` | The single-page UI |
 | `eval/` | Golden retrieval questions (`questions.jsonl`) |
+| `tests/` | Offline tests (`unittest` style, collected by `pytest`); patch `ragio.config` attributes per test, never the environment at import |
 | `data/` | **Gitignored.** Audio, transcripts, SQLite, clips — never commit |
 | `docs/` | Constitution, amendments, ADRs |
 | `features/` | The feature catalog (`features/v1`) |
