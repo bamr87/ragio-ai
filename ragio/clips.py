@@ -12,14 +12,55 @@ Backends for the audio model (RAGIO_AUDIO_BACKEND):
 from __future__ import annotations
 
 import base64
+import os
+import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 
 from . import config, db
 
 
+class FfmpegMissing(RuntimeError):
+    """ffmpeg is not on PATH, so no clip can be cut (the API answers 503)."""
+
+
+class ClipError(RuntimeError):
+    """ffmpeg ran and failed; nothing was written to the clip cache (the API answers 502)."""
+
+
+def _ffmpeg(args: list[str], out: Path) -> Path:
+    """Run `ffmpeg <args> <out>` so that `out` appears only if ffmpeg succeeds.
+
+    ffmpeg writes to a temp file beside `out` that keeps its extension (ffmpeg picks the output
+    format from it), and the temp file replaces `out` only on exit 0. A failed or interrupted cut
+    therefore never leaves a partial file at the cache path for the next request to serve.
+    """
+    exe = shutil.which("ffmpeg")
+    if exe is None:
+        raise FfmpegMissing("ffmpeg not found on PATH; install ffmpeg")
+    fd, name = tempfile.mkstemp(dir=out.parent, prefix=f".{out.stem}.", suffix=out.suffix)
+    os.close(fd)
+    tmp = Path(name)
+    try:
+        subprocess.run([exe, "-loglevel", "error", "-y", *args, str(tmp)],
+                       check=True, capture_output=True, text=True, errors="replace")
+        os.replace(tmp, out)
+    except subprocess.CalledProcessError as exc:
+        lines = (exc.stderr or "").strip().splitlines()
+        reason = lines[-1].strip()[:300] if lines else f"exit status {exc.returncode}"
+        raise ClipError(f"ffmpeg failed: {reason}") from exc
+    finally:
+        tmp.unlink(missing_ok=True)
+    return out
+
+
 def cut_clip(episode_id: str, start: float, end: float, fmt: str = "mp3", pad: float = 0.5) -> Path:
-    """Cut [start, end] (seconds) from the episode audio with ffmpeg; cached on disk."""
+    """Cut [start, end] (seconds) from the episode audio with ffmpeg; cached on disk.
+
+    Raises FileNotFoundError for an unknown episode or one without audio, FfmpegMissing when
+    ffmpeg is not on PATH, and ClipError when ffmpeg fails (nothing is cached then).
+    """
     with db.tx() as conn:
         ep = db.get_episode(conn, episode_id)
     if not ep or not ep["audio_path"]:
@@ -29,12 +70,7 @@ def cut_clip(episode_id: str, start: float, end: float, fmt: str = "mp3", pad: f
     if out.exists():
         return out
     codec = ["-c:a", "libmp3lame", "-b:a", "96k"] if fmt == "mp3" else ["-ar", "16000", "-ac", "1"]
-    subprocess.run(
-        ["ffmpeg", "-loglevel", "error", "-y", "-ss", f"{start:.2f}", "-to", f"{end:.2f}",
-         "-i", ep["audio_path"], *codec, str(out)],
-        check=True,
-    )
-    return out
+    return _ffmpeg(["-ss", f"{start:.2f}", "-to", f"{end:.2f}", "-i", ep["audio_path"], *codec], out)
 
 
 def listen(clip: Path, prompt: str) -> str:
@@ -87,6 +123,5 @@ def _listen_transformers(clip: Path, prompt: str) -> str:
 def _to_wav(clip: Path) -> Path:
     wav = clip.with_suffix(".wav")
     if not wav.exists():
-        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(clip), "-ar", "16000", "-ac", "1", str(wav)],
-                       check=True)
+        _ffmpeg(["-i", str(clip), "-ar", "16000", "-ac", "1"], wav)
     return wav
