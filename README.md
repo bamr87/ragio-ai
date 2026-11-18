@@ -127,3 +127,7 @@ static/index.html     the UI
 eval/questions.jsonl  your golden questions
 tests/                offline tests (python -m pytest -q; no Qdrant, Ollama or corpus needed)
 ```
+
+## Documentation
+
+Every document in the repository is listed, one line each, in [docs/README.md](docs/README.md): the requirements in [PRD.md](PRD.md), the architecture in [DESIGN.md](DESIGN.md), how to work here in [AGENTS.md](AGENTS.md), and the constitution, ADRs and amendments under `docs/`.

@@ -1,4 +1,5 @@
 # Ragio-Lab — Architecture & Design
+> How Ragio-Lab is built: the local stack, the pipeline from RSS feed to cited answers, the episode → window → segment data model, the API, the compute plan, risks and the decisions log.
 
 *A local AI engine stack with every Radiolab episode as its retrieval corpus.* Status: v0.1 design + starter repo (`ragio-lab-starter.zip`) — September 15, 2026
 
