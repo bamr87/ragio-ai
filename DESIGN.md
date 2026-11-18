@@ -1,7 +1,6 @@
 # Ragio-Lab — Architecture & Design
 
-*A local AI engine stack with every Radiolab episode as its retrieval corpus.*
-Status: v0.1 design + starter repo (`ragio-lab-starter.zip`) — September 15, 2026
+*A local AI engine stack with every Radiolab episode as its retrieval corpus.* Status: v0.1 design + starter repo (`ragio-lab-starter.zip`) — September 15, 2026
 
 ---
 
