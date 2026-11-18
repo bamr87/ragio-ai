@@ -4,6 +4,9 @@
 
 Endpoints
   GET  /                      minimal UI (static/index.html)
+  GET  /healthz               liveness: {"status":"ok"}; touches neither SQLite nor Qdrant
+  GET  /readyz                readiness: SQLite + Qdrant checks → 200 "ok" or 503 "degraded"
+  GET  /version               {"name","version","commit","built_at"}: release-please version, $GIT_SHA, $BUILT_AT
   GET  /api/episodes          catalog with pipeline status
   GET  /api/episodes/{id}     one episode + its windows (a readable transcript)
   GET  /api/search?q=         retrieval only (grouped by episode, timestamps)
@@ -15,15 +18,20 @@ Endpoints
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, StreamingResponse
 from pydantic import BaseModel
 
-from ragio import clips, db, rag
+from ragio import __version__, clips, db, index, rag
 
-app = FastAPI(title="Ragio-Lab", version="0.1.0")
+app = FastAPI(title="Ragio-Lab", version=__version__)
+
+# Probes (fleet standard UPS-BE-10, UPS-BE-11) are unauthenticated and never cached.
+NO_STORE = {"Cache-Control": "no-store"}
+QDRANT_PROBE_TIMEOUT = 1  # seconds: /readyz answers well inside 2 s when Qdrant is down
 
 
 class AskRequest(BaseModel):
@@ -41,6 +49,60 @@ class ListenRequest(BaseModel):
 def home() -> str:
     # Resolve next to this file so `uvicorn app:app` works from any working directory.
     return (Path(__file__).resolve().parent / "static" / "index.html").read_text()
+
+
+def _probe_error(exc: Exception) -> str:
+    """One short line saying why a readiness check failed."""
+    lines = str(exc).strip().splitlines()
+    reason = f"{type(exc).__name__}: {lines[0]}" if lines else type(exc).__name__
+    return reason[:200]
+
+
+def _check_db() -> str:
+    try:
+        with db.tx() as conn:
+            conn.execute("SELECT 1")
+    except Exception as exc:  # any failure means not ready; the reason goes into the response
+        return _probe_error(exc)
+    return "ok"
+
+
+def _check_qdrant() -> str:
+    try:
+        client = index.qdrant(timeout=QDRANT_PROBE_TIMEOUT)
+        try:
+            client.get_collections()
+        finally:
+            client.close()
+    except Exception as exc:  # any failure means not ready; the reason goes into the response
+        return _probe_error(exc)
+    return "ok"
+
+
+@app.get("/healthz")
+def healthz() -> JSONResponse:
+    """Liveness: the process answers. Touches no dependency."""
+    return JSONResponse({"status": "ok"}, headers=NO_STORE)
+
+
+@app.get("/readyz")
+def readyz() -> JSONResponse:
+    """Readiness: SQLite answers SELECT 1 and Qdrant lists its collections. Ollama is not checked."""
+    checks = {"db": _check_db(), "qdrant": _check_qdrant()}
+    ready = all(result == "ok" for result in checks.values())
+    return JSONResponse({"status": "ok" if ready else "degraded", "checks": checks},
+                        status_code=200 if ready else 503, headers=NO_STORE)
+
+
+@app.get("/version")
+def version() -> JSONResponse:
+    """Build identity: the release-please version, plus the build's commit and time (null when unset)."""
+    return JSONResponse({
+        "name": "ragio-lab",
+        "version": __version__,
+        "commit": os.environ.get("GIT_SHA") or None,
+        "built_at": os.environ.get("BUILT_AT") or None,
+    }, headers=NO_STORE)
 
 
 @app.get("/api/episodes")
