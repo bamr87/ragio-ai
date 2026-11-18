@@ -1,7 +1,7 @@
 # Ragio-Lab — Architecture & Design
+> How Ragio-Lab is built: the local stack, the pipeline from RSS feed to cited answers, the episode → window → segment data model, the API, the compute plan, risks and the decisions log.
 
-*A local AI engine stack with every Radiolab episode as its retrieval corpus.*
-Status: v0.1 design + starter repo (`ragio-lab-starter.zip`) — September 15, 2026
+*A local AI engine stack with every Radiolab episode as its retrieval corpus.* Status: v0.1 design + starter repo (`ragio-lab-starter.zip`) — September 15, 2026
 
 ---
 
@@ -87,6 +87,11 @@ Optional step 7, **deep listen**: `POST /api/listen {episode_id, start, end, pro
 | POST | `/api/ask/stream` | same, SSE: `sources` → `token`… → `done` |
 | GET | `/api/clip?ep&start&end` | MP3 clip (≤10 min) |
 | POST | `/api/listen` | audio-native answer about a clip (≤3 min) |
+| GET | `/healthz` | liveness: `{"status":"ok"}`, touches no dependency (UPS-BE-10) |
+| GET | `/readyz` | readiness: SQLite `SELECT 1` + Qdrant `get_collections` (1 s timeout) → 200 `ok`, or 503 `degraded` with each failing check's error; Ollama not checked (UPS-BE-10) |
+| GET | `/version` | `{"name","version","commit","built_at"}`: the release-please version (`ragio.__version__`), `$GIT_SHA`, `$BUILT_AT`, null when unset (UPS-BE-11) |
+
+The three probes are unauthenticated and sent with `Cache-Control: no-store`.
 
 `/api/clip` and `/api/listen` share their failure codes: 400 when `start` or `end` is not finite, `start` is negative or the window is empty or over the limit; 404 for an unknown episode or one without downloaded audio; 503 when ffmpeg is not on `PATH`; 502 when ffmpeg fails, with its last stderr line. ffmpeg writes to a temp file beside the cache path that keeps the real extension, and the file is moved into place only on success, so a failed cut caches nothing and a retry cuts again. A cut recreates `data/clips/` if it was deleted while the server runs.
 
