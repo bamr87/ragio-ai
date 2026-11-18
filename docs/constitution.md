@@ -6,9 +6,17 @@
 > Agents read this before [AGENTS.md](../AGENTS.md) conventions, the [PRD](../PRD.md), or the
 > [feature catalog](../features/features.yml). Ratified by merged PR; amended only per § 8.
 
-## 1. Mission
+## 1. Missions
 
-Ragio-Lab serves a single researcher who wants the whole Radiolab archive as grounded, second-accurate context for a local LLM: every answer cites episode timestamps and can be heard as a clip (PRD § 1).
+Ragio-Lab's direction is to become the ultimate open home for all things grounded audio knowledge — data, tools, resources and transparency, gathered in one place that anyone can inspect and reuse.
+
+1. **Provide data, tools, resources and transparency for all stakeholders, researchers, audio and journalism professionals, and the general public.** Researchers, listeners, journalists, builders, and the general public are first-class audiences. The aim is a shared, open commons: the same sources, the same tools, and the same trail of evidence for everyone.
+2. **Make every episode queryable, reproducible and auditable, and let AI explain it only with citations.** The path starts with the Radiolab archive — local transcripts with second-accurate timestamps, retrieval over the catalog, and answers that can be heard as a clip — and widens from there. Optional AI stays grounded in retrieved audio and transcript rather than replacing them. A fully local runtime remains the default.
+3. **Put that archive in every listener's, researcher's and builder's hands.** Serve it through the local RAG engine, the API and the clip tools, so anyone can search, cite and hear the evidence — an open toolkit for working with all things grounded audio knowledge.
+
+These missions set the course; they do not claim the work is finished. They serve the PRD purpose: a fully local, citation-first archive, starting with Radiolab. The earlier mission — serving a researcher who wants the Radiolab archive as grounded, second-accurate context — is absorbed into these three. Provenance, citation and local-first principles are kept. Every feature must trace to them.
+
+_Source: [../PRD.md](../PRD.md) §1.1._
 
 ## 2. Invariants (non-negotiable)
 

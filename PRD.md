@@ -12,6 +12,17 @@ Ragio-Lab makes the entire Radiolab archive (~700+ episodes, ~500–600 hours of
 | Planned | Episode-level routing, creative propagation modes, knowledge graph, diarization (DESIGN.md § 8–9) |
 | Out of scope | Multi-user auth, cloud deployment, redistributing audio, clips or transcripts |
 
+
+## 1.1 Missions
+
+Ragio-Lab's direction is to become the ultimate open home for all things grounded audio knowledge — data, tools, resources and transparency, gathered in one place that anyone can inspect and reuse.
+
+1. **Provide data, tools, resources and transparency for all stakeholders, researchers, audio and journalism professionals, and the general public.** Researchers, listeners, journalists, builders, and the general public are first-class audiences. The aim is a shared, open commons: the same sources, the same tools, and the same trail of evidence for everyone.
+2. **Make every episode queryable, reproducible and auditable, and let AI explain it only with citations.** The path starts with the Radiolab archive — local transcripts with second-accurate timestamps, retrieval over the catalog, and answers that can be heard as a clip — and widens from there. Optional AI stays grounded in retrieved audio and transcript rather than replacing them. A fully local runtime remains the default.
+3. **Put that archive in every listener's, researcher's and builder's hands.** Serve it through the local RAG engine, the API and the clip tools, so anyone can search, cite and hear the evidence — an open toolkit for working with all things grounded audio knowledge.
+
+These missions set the course; they do not claim the work is finished. They serve the PRD purpose: a fully local, citation-first archive, starting with Radiolab. The earlier mission — serving a researcher who wants the Radiolab archive as grounded, second-accurate context — is absorbed into these three. Provenance, citation and local-first principles are kept. Every feature must trace to them.
+
 ## 2. Users
 
 One researcher running the whole stack on a single machine (Apple Silicon Mac or a Linux/NVIDIA box).
@@ -86,6 +97,7 @@ Every user-facing capability has a stable id in the feature catalog [`features/f
 | [RAGIO-014](features/features.yml) | speaker diarization attached to transcript segments | planned | [`DESIGN.md`](DESIGN.md) | FR18 |
 | [RAGIO-015](features/features.yml) | Export pipeline metrics and traces over OTLP to bamr87/fleet-observe | planned | [`DESIGN.md`](DESIGN.md) | FR19 |
 | [RAGIO-016](features/features.yml) | Health, readiness and version probes | shipped | [`app.py`](app.py) · [`README.md`](README.md) | NFR7 |
+| [RAGIO-017](features/features.yml) | Missions in constitution §1 | planned | [`docs/constitution.md`](docs/constitution.md) | §1.1 |
 
 **Requirement → feature trace**
 
@@ -116,4 +128,5 @@ Every user-facing capability has a stable id in the feature catalog [`features/f
 | FR18 | RAGIO-014 |
 | FR19 | RAGIO-015 |
 | NFR7 | RAGIO-016 |
+| §1.1 | RAGIO-017 |
 <!-- features:end -->

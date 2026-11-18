@@ -12,7 +12,7 @@
 
 | Document | What it covers |
 | --- | --- |
-| [`AGENTS.md`](../AGENTS.md) | Ragio-Lab: a fully local RAG engine over every Radiolab episode — Whisper transcripts with exact timestamps, SQLite, Qdrant, LlamaIndex, Ollama and a FastAPI web app. |
+| [`AGENTS.md`](../AGENTS.md) | Ragio-Lab's direction is to become the ultimate open home for all things grounded audio knowledge: data, tools, resources and transparency, with a local Radiolab archive, second-accurate citations, playable clips, and cited AI for everyone… |
 | [`CHANGELOG.md`](../CHANGELOG.md) | Release history: the notable changes in each version, newest first. |
 | [`PRD.md`](../PRD.md) | What Ragio-Lab must do, derived from [README.md](../README.md) and [DESIGN.md](../DESIGN.md). Architecture detail lives in DESIGN.md; open work is tracked in [GitHub Issues](https://github.com/bamr87/ragio-ai/issues). |
 | [`DESIGN.md`](../DESIGN.md) | How Ragio-Lab is built: the local stack, the pipeline from RSS feed to cited answers, the episode → window → segment data model, the API, the compute plan, risks and the decisions log. |
