@@ -151,6 +151,16 @@ features:
     prd: [FR19]
     tags: [roadmap, phase-5]
   - id: RAGIO-016
+    title: Health, readiness and version probes
+    description: GET /healthz (liveness, touches nothing), GET /readyz (SQLite + Qdrant, 200 ok or 503 degraded) and GET /version (release-please version, GIT_SHA, BUILT_AT), unauthenticated and uncached.
+    implemented: true
+    status: shipped
+    surface: api
+    link: app.py
+    docs: README.md
+    prd: [NFR7]
+    tags: [fastapi, ops]
+  - id: RAGIO-017
     title: "Missions in constitution §1"
     description: "Three product missions under one direction statement, ratified through amendment 0002."
     implemented: false

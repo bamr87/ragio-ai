@@ -8,7 +8,7 @@ Ragio-Lab makes the entire Radiolab archive (~700+ episodes, ~500–600 hours of
 
 | Area | Status |
 | --- | --- |
-| In scope (shipped, v0.1) | RSS catalog, MP3 download, local Whisper transcription, windowing, hybrid Qdrant index, episode summaries, cited RAG answers (CLI + API + SSE), clips, deep listen, retrieval eval, single-page web UI |
+| In scope (shipped, v0.1) | RSS catalog, MP3 download, local Whisper transcription, windowing, hybrid Qdrant index, episode summaries, cited RAG answers (CLI + API + SSE), clips, deep listen, retrieval eval, single-page web UI, health/readiness/version probes |
 | Planned | Episode-level routing, creative propagation modes, knowledge graph, diarization (DESIGN.md § 8–9) |
 | Out of scope | Multi-user auth, cloud deployment, redistributing audio, clips or transcripts |
 
@@ -68,6 +68,7 @@ One researcher running the whole stack on a single machine (Apple Silicon Mac or
 - NFR4: Generated answers never go beyond the evidence and always show sources; creative output never reproduces transcript text at length.
 - NFR5: Personal research use only: audio, transcripts and clips are never committed or redistributed.
 - NFR6: The LLM prompt caps evidence size to avoid context overflow.
+- NFR7: The web app exposes unauthenticated, uncached operational probes: `GET /healthz` (liveness; touches no dependency), `GET /readyz` (SQLite and Qdrant readiness; `200 ok`, or `503 degraded` with each failing check's error, within 2 s when a dependency is down; Ollama is not checked) and `GET /version` (name, the release-please version, `$GIT_SHA` and `$BUILT_AT`). Source: the fleet standard's UPS-BE-10 and UPS-BE-11 (bamr87/bamr87 `specs/BACKEND.md`).
 
 ## 5. Roadmap
 
@@ -95,7 +96,8 @@ Every user-facing capability has a stable id in the feature catalog [`features/f
 | [RAGIO-013](features/features.yml) | creative modes and an episode/people/themes knowledge graph | planned | [`DESIGN.md`](DESIGN.md) | FR17 |
 | [RAGIO-014](features/features.yml) | speaker diarization attached to transcript segments | planned | [`DESIGN.md`](DESIGN.md) | FR18 |
 | [RAGIO-015](features/features.yml) | Export pipeline metrics and traces over OTLP to bamr87/fleet-observe | planned | [`DESIGN.md`](DESIGN.md) | FR19 |
-| [RAGIO-016](features/features.yml) | Missions in constitution §1 | planned | [`docs/constitution.md`](docs/constitution.md) | §1.1 |
+| [RAGIO-016](features/features.yml) | Health, readiness and version probes | shipped | [`app.py`](app.py) · [`README.md`](README.md) | NFR7 |
+| [RAGIO-017](features/features.yml) | Missions in constitution §1 | planned | [`docs/constitution.md`](docs/constitution.md) | §1.1 |
 
 **Requirement → feature trace**
 
@@ -125,5 +127,6 @@ Every user-facing capability has a stable id in the feature catalog [`features/f
 | FR17 | RAGIO-013 |
 | FR18 | RAGIO-014 |
 | FR19 | RAGIO-015 |
-| §1.1 | RAGIO-016 |
+| NFR7 | RAGIO-016 |
+| §1.1 | RAGIO-017 |
 <!-- features:end -->

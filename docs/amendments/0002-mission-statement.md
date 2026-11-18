@@ -5,7 +5,7 @@
 - **Date:** 2026-11-16
 - **Proposed by:** Grok Bot (agent), at the maintainer's request
 - **Ratified by:**
-- **Affects:** constitution §1; PRD.md §1.1; RAGIO-016
+- **Affects:** constitution §1; PRD.md §1.1; RAGIO-017
 - **Supersedes:** none
 - **Related:** [PRD.md](../../PRD.md) §1.1
 
