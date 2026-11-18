@@ -27,9 +27,14 @@ make pipeline                             # 3 episodes end-to-end
 python -m ragio status
 make serve                                # http://localhost:8000
 
-# test (no automated suite yet — see Standard deviations)
+# test (a first offline suite; the UPS-QA-10 waiver stands — see Standard deviations)
+python -m pytest -q                       # tests/ (pip install pytest); offline: no Qdrant, Ollama or corpus (CI runs it)
 python -m compileall -q ragio app.py
 python -m ragio eval                      # retrieval hit@1/3/5 (needs an indexed corpus)
+
+# docs index (UPS-DOC-02/03): regenerate after adding a document or changing a summary line
+python3 tools/docs_index.py --write
+python3 tools/docs_index.py --lint && python3 tools/docs_index.py --check
 
 # lint / build: none configured yet; the app is run from source
 ```
@@ -42,9 +47,11 @@ python -m ragio eval                      # retrieval hit@1/3/5 (needs an indexe
 | `ragio/` | The pipeline: `catalog`, `transcribe`, `chunk`, `index`, `rag`, `clips`, `evaluate`, `db`, `config`, CLI in `__main__.py` |
 | `static/` | The single-page UI |
 | `eval/` | Golden retrieval questions (`questions.jsonl`) |
+| `tests/` | Offline tests (`unittest` style, collected by `pytest`); patch `ragio.config` attributes per test, never the environment at import |
 | `data/` | **Gitignored.** Audio, transcripts, SQLite, clips — never commit |
-| `docs/` | Constitution, amendments, ADRs |
+| `docs/` | Constitution, amendments, ADRs, and `docs/README.md`, the generated index of every document (never edit its `AUTO:docs-index` span by hand) |
 | `features/` | The feature catalog (`features/v1`) |
+| `tools/` | Fleet tools vendored byte-identical from the hub, such as `docs_index.py`; change them upstream in bamr87/bamr87 first, then re-vendor |
 
 ## Conventions
 

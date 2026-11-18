@@ -35,8 +35,13 @@ def configure_llamaindex() -> None:
                           request_timeout=300.0, context_window=config.LLM_CONTEXT)
 
 
-def qdrant() -> qdrant_client.QdrantClient:
-    return qdrant_client.QdrantClient(url=config.QDRANT_URL)
+def qdrant(timeout: int | None = None) -> qdrant_client.QdrantClient:
+    """A Qdrant client. Pass `timeout` (seconds) for a short-lived probe such as /readyz: it caps
+    every request and skips the client's server-version handshake, one more request to a server
+    that may be down."""
+    if timeout is None:
+        return qdrant_client.QdrantClient(url=config.QDRANT_URL)
+    return qdrant_client.QdrantClient(url=config.QDRANT_URL, timeout=timeout, check_compatibility=False)
 
 
 def vector_store(collection: str) -> QdrantVectorStore:
