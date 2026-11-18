@@ -18,6 +18,7 @@ Endpoints
 from __future__ import annotations
 
 import json
+import math
 import os
 from pathlib import Path
 
@@ -143,25 +144,38 @@ def ask_stream(req: AskRequest):
     return StreamingResponse(gen(), media_type="text/event-stream")
 
 
-@app.get("/api/clip")
-def clip(ep: str, start: float, end: float):
-    if end <= start or end - start > 600:
-        raise HTTPException(400, "clip must be 0–600 seconds long")
+def _check_window(start: float, end: float, max_seconds: int, what: str) -> None:
+    """400 unless start and end are finite, start >= 0 and the window is 0–max_seconds long."""
+    # NaN fails every comparison, so it would pass the length check below on its own.
+    if not (math.isfinite(start) and math.isfinite(end)) or start < 0:
+        raise HTTPException(400, "start and end must be finite numbers of seconds, start >= 0")
+    if end <= start or end - start > max_seconds:
+        raise HTTPException(400, f"{what} must be 0–{max_seconds} seconds long")
+
+
+def _cut(episode_id: str, start: float, end: float, fmt: str = "mp3") -> Path:
+    """clips.cut_clip, with its failures as HTTP errors: 404 no audio, 503 no ffmpeg, 502 ffmpeg failed."""
     try:
-        path = clips.cut_clip(ep, start, end)
+        return clips.cut_clip(episode_id, start, end, fmt=fmt)
     except FileNotFoundError as exc:
         raise HTTPException(404, str(exc)) from exc
+    except clips.FfmpegMissing as exc:
+        raise HTTPException(503, str(exc)) from exc
+    except clips.ClipError as exc:
+        raise HTTPException(502, str(exc)) from exc
+
+
+@app.get("/api/clip")
+def clip(ep: str, start: float, end: float):
+    _check_window(start, end, 600, "clip")
+    path = _cut(ep, start, end)
     return FileResponse(path, media_type="audio/mpeg", filename=path.name)
 
 
 @app.post("/api/listen")
 def listen(req: ListenRequest):
-    if req.end <= req.start or req.end - req.start > 180:
-        raise HTTPException(400, "deep-listen clips must be 0–180 seconds long")
-    try:
-        wav = clips.cut_clip(req.episode_id, req.start, req.end, fmt="wav")
-    except FileNotFoundError as exc:
-        raise HTTPException(404, str(exc)) from exc
+    _check_window(req.start, req.end, 180, "deep-listen clips")
+    wav = _cut(req.episode_id, req.start, req.end, fmt="wav")
     try:
         return {"answer": clips.listen(wav, req.prompt)}
     except NotImplementedError as exc:

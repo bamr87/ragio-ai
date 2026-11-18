@@ -80,6 +80,19 @@ Qdrant point ids are `uuid5(episode_id:idx)`, so re-indexing an episode upserts 
 4. Prompt with labelled evidence `[E3] Title (date) @ 12:04–14:31` and ask the LLM to cite labels
 5. Return answer + sources, each with `clip_url` → `/api/clip?ep=…&start=…&end=…` (ffmpeg, cached)
 
+## Troubleshooting clips
+
+The UI plays every source from `/api/clip`, and `/api/listen` cuts the same kind of clip for the audio model. When a cut can't be served, both say why:
+
+| Status | Means | Do |
+| --- | --- | --- |
+| `400` | `start` or `end` is not a finite number of seconds, `start` is negative, or the window is empty or too long (10 min for a clip, 3 min for deep listen) | Fix the request |
+| `404` `no audio for episode …` | The episode is unknown, or its MP3 hasn't been downloaded | `python -m ragio status`, then `python -m ragio download` |
+| `503` `ffmpeg not found on PATH` | ffmpeg isn't installed, or isn't on the `PATH` of the process running `make serve` | Install ffmpeg (`brew install ffmpeg`, `apt install ffmpeg`); the next request finds it |
+| `502` `ffmpeg failed: …` | ffmpeg ran and failed on that episode's audio; the message is its last error line | Check or re-download the episode's MP3 under `data/audio/`. Nothing was cached, so a retry runs the cut again |
+
+A clip is cached in `data/clips/` only when ffmpeg succeeds. Earlier versions could leave a truncated clip there after a failed cut and serve it from then on: if a clip plays short or not at all, delete `data/clips/`. It is only a cache: there is no need to stop the server, and clips are cut again on demand.
+
 ## Compute plan
 
 Radiolab has ~700+ episodes averaging ~45 min ⇒ roughly **500–600 hours of audio**.
