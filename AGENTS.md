@@ -72,4 +72,4 @@ Continuous evolution: the hub's weekly repo-evolution loop and backlog fan-out o
 
 ## Standard deviations
 
-- UPS-QA-10 waived until 2027-03-01: no automated test suite yet; the pipeline depends on Ollama, Qdrant and Whisper models. First tests are a follow-up.
+- UPS-QA-10 waived until 2027-03-01: `tests/` is a first offline suite (the HTTP probes and clip error handling, run in CI), but the pipeline stages themselves (transcribe, index, retrieve, answer) are untested because they depend on Ollama, Qdrant and Whisper models. Offline retrieval tests are tracked in issue #3.

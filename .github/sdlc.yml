@@ -34,4 +34,4 @@ release:
 
 # Waived requirements, each also listed in AGENTS.md § Standard deviations.
 deviations:
-  - { id: UPS-QA-10, reason: "no automated test suite yet; pipeline needs Ollama/Qdrant/Whisper", until: "2027-03-01" }            # - { id: UPS-WORK-07, reason: "…", until: "2027-01-01" }   # quote the date
+  - { id: UPS-QA-10, reason: "offline tests cover the HTTP probes and clip errors only; pipeline stages need Ollama/Qdrant/Whisper", until: "2027-03-01" }            # - { id: UPS-WORK-07, reason: "…", until: "2027-01-01" }   # quote the date

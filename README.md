@@ -113,7 +113,7 @@ All knobs are environment variables with defaults in `ragio/config.py` — chunk
 
 ## Evaluation
 
-Put 20–30 questions with known answers in `eval/questions.jsonl` (`python -m ragio search "…"` shows episode ids), then `python -m ragio eval` prints hit@1/3/5. Re-run after every retrieval change.
+Put 20–30 questions with known answers in `eval/questions.jsonl` (`python -m ragio search "…"` shows episode ids), then `python -m ragio eval` prints hit@1/3/5. Re-run after every retrieval change. The file ships with three example questions whose `expect` is the placeholder `REPLACE_WITH_EPISODE_ID`: `eval` skips and counts those rows, and exits with an error until at least one row names a real episode id.
 
 ## A note on the audio-native model
 
@@ -141,6 +141,9 @@ ragio/evaluate.py     retrieval hit-rate
 static/index.html     the UI
 eval/questions.jsonl  your golden questions
 tests/                offline tests (python -m pytest -q; no Qdrant, Ollama or corpus needed)
+docs/                 constitution, ADRs, amendments; docs/README.md indexes every document
+features/             feature catalog (features.yml)
+tools/                fleet tools vendored from bamr87/bamr87 (docs_index.py)
 ```
 
 ## Documentation
