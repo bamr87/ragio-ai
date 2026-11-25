@@ -97,7 +97,7 @@ features:
     prd: [FR12, FR7, FR9, FR10]
     tags: [fastapi, ui]
   - id: RAGIO-010
-    title: "index the full archive and reach eval hit@5 ≥ 0.85 on eval/questions.j"
+    title: "Full archive indexed at eval hit@5 ≥ 0.85"
     description: "Phase 1: index the full archive and reach eval hit@5 ≥ 0.85 on eval/questions.jsonl."
     implemented: false
     status: planned
@@ -106,7 +106,7 @@ features:
     prd: [FR14]
     tags: [roadmap, phase-1]
   - id: RAGIO-011
-    title: "route questions to candidate episodes via the summary collection befor"
+    title: "Episode routing via the summary collection"
     description: "Phase 2: route questions to candidate episodes via the summary collection before chunk retrieval."
     implemented: false
     status: planned
@@ -115,7 +115,7 @@ features:
     prd: [FR15]
     tags: [roadmap, phase-2]
   - id: RAGIO-012
-    title: "GPU deep-listen mode re-transcribing cited ranges with a larger Whispe"
+    title: "GPU deep listen with a larger Whisper model"
     description: "Phase 3: GPU deep-listen mode re-transcribing cited ranges with a larger Whisper model."
     implemented: false
     status: planned
@@ -124,7 +124,7 @@ features:
     prd: [FR16]
     tags: [roadmap, phase-3]
   - id: RAGIO-013
-    title: "creative modes and an episode/people/themes knowledge graph"
+    title: "Creative modes and an episode/people/themes knowledge graph"
     description: "Phase 4: creative modes and an episode/people/themes knowledge graph."
     implemented: false
     status: planned
@@ -133,7 +133,7 @@ features:
     prd: [FR17]
     tags: [roadmap, phase-4]
   - id: RAGIO-014
-    title: "speaker diarization attached to transcript segments"
+    title: "Speaker diarization on transcript segments"
     description: "Phase 5: speaker diarization attached to transcript segments."
     implemented: false
     status: planned
@@ -162,9 +162,27 @@ features:
     tags: [fastapi, ops]
   - id: RAGIO-017
     title: "Missions in constitution §1"
-    description: "Three product missions under one direction statement, ratified through amendment 0002."
-    implemented: false
-    status: planned
+    description: "Three product missions under one direction statement, ratified through amendment 0002 (PR #17)."
+    implemented: true
+    status: shipped
     prd: ["§1.1"]
     surface: docs
     docs: "docs/constitution.md"
+  - id: RAGIO-018
+    title: "Timestamped citation export and deep links"
+    description: "Copy a source as a plain-text/Markdown citation or a deep link that opens the transcript at that second; answers can carry a references block (API and CLI)."
+    implemented: false
+    status: planned
+    surface: ui
+    docs: PRD.md
+    prd: [FR20]
+    tags: [citations, ui, deep-dive]
+  - id: RAGIO-019
+    title: "Multiple podcast sources"
+    description: "Catalog, index and filter more than one podcast feed, with a source id on every episode and payload; Radiolab stays the default."
+    implemented: false
+    status: planned
+    surface: cli
+    docs: PRD.md
+    prd: [FR21]
+    tags: [sources, pipeline, deep-dive]

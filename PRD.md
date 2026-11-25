@@ -59,6 +59,8 @@ One researcher running the whole stack on a single machine (Apple Silicon Mac or
 - FR17: Phase 4: creative modes and an episode/people/themes knowledge graph
 - FR18: Phase 5: speaker diarization attached to transcript segments
 - FR19: Export pipeline metrics and traces over OTLP to bamr87/fleet-observe
+- FR20: Export any cited source as a timestamped citation (plain text, Markdown) or a deep link that opens the transcript at that second, and optionally return answers with a references block built only from their sources ([#26](https://github.com/bamr87/ragio-ai/issues/26))
+- FR21: Catalog, index and filter episodes from more than one podcast feed, with a source id on every episode and index payload and Radiolab as the default source ([#27](https://github.com/bamr87/ragio-ai/issues/27))
 
 ### Non-functional
 
@@ -90,14 +92,16 @@ Every user-facing capability has a stable id in the feature catalog [`features/f
 | [RAGIO-007](features/features.yml) | Deep listen | partial | [`ragio/clips.py`](ragio/clips.py) · [`README.md`](README.md) | FR10 |
 | [RAGIO-008](features/features.yml) | Retrieval evaluation | shipped | [`ragio/evaluate.py`](ragio/evaluate.py) · [`DESIGN.md`](DESIGN.md) | FR11 |
 | [RAGIO-009](features/features.yml) | Web app | shipped | [`app.py`](app.py) · [`DESIGN.md`](DESIGN.md) | FR12, FR7, FR9, FR10 |
-| [RAGIO-010](features/features.yml) | index the full archive and reach eval hit@5 ≥ 0.85 on eval/questions.j | planned | [`DESIGN.md`](DESIGN.md) | FR14 |
-| [RAGIO-011](features/features.yml) | route questions to candidate episodes via the summary collection befor | planned | [`DESIGN.md`](DESIGN.md) | FR15 |
-| [RAGIO-012](features/features.yml) | GPU deep-listen mode re-transcribing cited ranges with a larger Whispe | planned | [`DESIGN.md`](DESIGN.md) | FR16 |
-| [RAGIO-013](features/features.yml) | creative modes and an episode/people/themes knowledge graph | planned | [`DESIGN.md`](DESIGN.md) | FR17 |
-| [RAGIO-014](features/features.yml) | speaker diarization attached to transcript segments | planned | [`DESIGN.md`](DESIGN.md) | FR18 |
+| [RAGIO-010](features/features.yml) | Full archive indexed at eval hit@5 ≥ 0.85 | planned | [`DESIGN.md`](DESIGN.md) | FR14 |
+| [RAGIO-011](features/features.yml) | Episode routing via the summary collection | planned | [`DESIGN.md`](DESIGN.md) | FR15 |
+| [RAGIO-012](features/features.yml) | GPU deep listen with a larger Whisper model | planned | [`DESIGN.md`](DESIGN.md) | FR16 |
+| [RAGIO-013](features/features.yml) | Creative modes and an episode/people/themes knowledge graph | planned | [`DESIGN.md`](DESIGN.md) | FR17 |
+| [RAGIO-014](features/features.yml) | Speaker diarization on transcript segments | planned | [`DESIGN.md`](DESIGN.md) | FR18 |
 | [RAGIO-015](features/features.yml) | Export pipeline metrics and traces over OTLP to bamr87/fleet-observe | planned | [`DESIGN.md`](DESIGN.md) | FR19 |
 | [RAGIO-016](features/features.yml) | Health, readiness and version probes | shipped | [`app.py`](app.py) · [`README.md`](README.md) | NFR7 |
-| [RAGIO-017](features/features.yml) | Missions in constitution §1 | planned | [`docs/constitution.md`](docs/constitution.md) | §1.1 |
+| [RAGIO-017](features/features.yml) | Missions in constitution §1 | shipped | [`docs/constitution.md`](docs/constitution.md) | §1.1 |
+| [RAGIO-018](features/features.yml) | Timestamped citation export and deep links | planned | [`PRD.md`](PRD.md) | FR20 |
+| [RAGIO-019](features/features.yml) | Multiple podcast sources | planned | [`PRD.md`](PRD.md) | FR21 |
 
 **Requirement → feature trace**
 
@@ -129,4 +133,6 @@ Every user-facing capability has a stable id in the feature catalog [`features/f
 | FR19 | RAGIO-015 |
 | NFR7 | RAGIO-016 |
 | §1.1 | RAGIO-017 |
+| FR20 | RAGIO-018 |
+| FR21 | RAGIO-019 |
 <!-- features:end -->

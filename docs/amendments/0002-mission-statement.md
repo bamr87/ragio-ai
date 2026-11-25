@@ -1,10 +1,10 @@
 <!-- kit: governance v0.1.0 -->
 # 0002 — Missions
 
-- **Status:** proposed
+- **Status:** ratified
 - **Date:** 2026-11-16
 - **Proposed by:** Grok Bot (agent), at the maintainer's request
-- **Ratified by:**
+- **Ratified by:** bamr87, by merging PR #17 (2026-11-18)
 - **Affects:** constitution §1; PRD.md §1.1; RAGIO-017
 - **Supersedes:** none
 - **Related:** [PRD.md](../../PRD.md) §1.1
