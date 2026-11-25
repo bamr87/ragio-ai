@@ -23,6 +23,9 @@
   .src .ex { margin:6px 0; color:#c9cdd4; font-size:14px; }
   audio { width:100%; height:32px; margin-top:6px; }
   a { color:var(--accent); }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+  #answer.error { border-color:#e5534b; color:#f0a8a3; }
 </style>
 </head>
 <body>
@@ -30,10 +33,11 @@
   <h1>Ragio<span>-</span>Lab</h1>
   <p class="sub">Ask anything across every Radiolab episode. Answers cite the exact moment; press play to hear it.</p>
   <form id="f">
-    <input id="q" placeholder="e.g. Which episodes talk about the placebo effect, and how do they differ?" autofocus>
+    <label for="q" class="sr-only">Your question</label>
+    <input id="q" name="q" required minlength="2" maxlength="2000" autocomplete="off" placeholder="e.g. Which episodes talk about the placebo effect, and how do they differ?" autofocus>
     <button id="go">Ask</button>
   </form>
-  <div id="answer" hidden></div>
+  <div id="answer" hidden aria-live="polite" aria-busy="false"></div>
   <div id="sources"></div>
 </main>
 <script>
@@ -41,32 +45,50 @@ const f = document.getElementById('f'), q = document.getElementById('q'), go = d
 const ans = document.getElementById('answer'), srcs = document.getElementById('sources');
 f.addEventListener('submit', async (e) => {
   e.preventDefault();
-  go.disabled = true; ans.hidden = false; ans.textContent = ''; srcs.innerHTML = '';
-  const res = await fetch('/api/ask/stream', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({question: q.value})});
-  const reader = res.body.getReader(); const dec = new TextDecoder(); let buf = '';
-  while (true) {
-    const {value, done} = await reader.read(); if (done) break;
-    buf += dec.decode(value, {stream:true});
-    let i; while ((i = buf.indexOf('\n\n')) >= 0) {
-      const line = buf.slice(0, i).trim(); buf = buf.slice(i + 2);
-      if (!line.startsWith('data: ')) continue;
-      const ev = JSON.parse(line.slice(6));
-      if (ev.type === 'token') ans.textContent += ev.text;
-      if (ev.type === 'sources') renderSources(ev.sources);
+  const question = q.value.trim();
+  if (question.length < 2) { q.focus(); return; }
+  go.disabled = true; ans.hidden = false; ans.textContent = ''; ans.classList.remove('error');
+  ans.setAttribute('aria-busy', 'true'); srcs.innerHTML = '';
+  try {
+    const res = await fetch('/api/ask/stream', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({question})});
+    if (!res.ok || !res.body) {
+      let detail = '';
+      try { const body = await res.json(); detail = typeof body.detail === 'string' ? body.detail : ''; } catch (_) {}
+      throw new Error(`The server answered ${res.status}${detail ? ': ' + detail : ''}. Is Qdrant/Ollama running? (see /readyz)`);
     }
+    const reader = res.body.getReader(); const dec = new TextDecoder(); let buf = '';
+    while (true) {
+      const {value, done} = await reader.read(); if (done) break;
+      buf += dec.decode(value, {stream:true});
+      let i; while ((i = buf.indexOf('\n\n')) >= 0) {
+        const line = buf.slice(0, i).trim(); buf = buf.slice(i + 2);
+        if (!line.startsWith('data: ')) continue;
+        const ev = JSON.parse(line.slice(6));
+        if (ev.type === 'token') ans.textContent += ev.text;
+        if (ev.type === 'sources') renderSources(ev.sources);
+        if (ev.type === 'error') throw new Error(ev.message || 'The answer stopped with an error.');
+      }
+    }
+  } catch (err) {
+    ans.classList.add('error');
+    ans.textContent += (ans.textContent ? '\n\n' : '') + (err && err.message ? err.message : 'Request failed.');
+  } finally {
+    ans.setAttribute('aria-busy', 'false');
+    go.disabled = false;
   }
-  go.disabled = false;
 });
 function renderSources(list) {
   srcs.innerHTML = list.map(s => `
     <div class="src">
-      <b>[${s.label}]</b> ${esc(s.title)} <span class="meta">· ${s.published} · ${s.start_hms}–${s.end_hms}
-        ${s.page_url ? `· <a href="${s.page_url}" target="_blank" rel="noopener">episode page</a>` : ''}</span>
+      <b>[${esc(s.label)}]</b> ${esc(s.title)} <span class="meta">· ${esc(s.published)} · ${esc(s.start_hms)}–${esc(s.end_hms)}
+        ${safeUrl(s.page_url) ? `· <a href="${esc(safeUrl(s.page_url))}" target="_blank" rel="noopener noreferrer">episode page</a>` : ''}</span>
       <div class="ex">${esc(s.excerpt)}</div>
-      <audio controls preload="none" src="${s.clip_url}"></audio>
+      <audio controls preload="none" src="${esc(s.clip_url)}" aria-label="Play clip ${esc(s.label)}: ${esc(s.title)} at ${esc(s.start_hms)}"></audio>
     </div>`).join('');
 }
-function esc(t) { return (t || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function esc(t) { return String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+// Feed-supplied links: only http(s), never javascript:/data:.
+function safeUrl(u) { try { const url = new URL(u, location.href); return /^https?:$/.test(url.protocol) ? url.href : ''; } catch (_) { return ''; } }
 </script>
 </body>
 </html>
