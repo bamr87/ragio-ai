@@ -18,15 +18,30 @@ Endpoints
 from __future__ import annotations
 
 import json
+import logging
 import math
 import os
 from pathlib import Path
 
+import httpx
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, StreamingResponse
 from pydantic import BaseModel
+from qdrant_client.http.exceptions import ApiException as QdrantApiError
 
 from ragio import __version__, clips, db, index, rag
+
+log = logging.getLogger("ragio.app")
+
+# What "a dependency is down" looks like: refused or timed-out sockets (OSError covers
+# ConnectionError and TimeoutError), httpx transport/status errors from Ollama and Qdrant's
+# REST client, and Qdrant's own API errors. Anything else is a bug and stays a 500.
+DEPENDENCY_ERRORS: tuple[type[BaseException], ...] = (OSError, httpx.HTTPError, QdrantApiError)
+try:  # llama-index-llms-ollama talks through the ollama client, which has its own error type
+    from ollama import ResponseError as OllamaResponseError
+    DEPENDENCY_ERRORS += (OllamaResponseError,)
+except ImportError:  # pragma: no cover - ollama ships with llama-index-llms-ollama
+    pass
 
 app = FastAPI(title="Ragio-Lab", version=__version__)
 
@@ -126,21 +141,46 @@ def episode(episode_id: str):
             "windows": [{**dict(w), "start_hms": rag.fmt_ts(w["start"])} for w in wins]}
 
 
+def _unavailable(exc: Exception) -> HTTPException:
+    """A 503 whose detail names the dependency error, e.g. `ConnectionError: … refused`."""
+    log.warning("dependency unavailable: %s", _probe_error(exc))
+    return HTTPException(503, f"a dependency is unavailable: {_probe_error(exc)}")
+
+
 @app.get("/api/search")
 def search(q: str = Query(..., min_length=2)):
-    return rag.search(q)
+    try:
+        return rag.search(q)
+    except DEPENDENCY_ERRORS as exc:
+        raise _unavailable(exc) from exc
 
 
 @app.post("/api/ask")
 def ask(req: AskRequest):
-    return rag.ask(req.question)
+    try:
+        return rag.ask(req.question)
+    except DEPENDENCY_ERRORS as exc:
+        raise _unavailable(exc) from exc
+
+
+def _sse(event: dict) -> str:
+    return f"data: {json.dumps(event)}\n\n"
 
 
 @app.post("/api/ask/stream")
 def ask_stream(req: AskRequest):
+    # The 200 and headers are sent before rag.ask_stream runs, so a failure here cannot become
+    # a status code: it becomes an `error` event, and the stream always ends with `done`.
     def gen():
-        for event in rag.ask_stream(req.question):
-            yield f"data: {json.dumps(event)}\n\n"
+        try:
+            for event in rag.ask_stream(req.question):
+                yield _sse(event)
+                if event.get("type") == "done":
+                    return
+        except Exception as exc:  # the stream is already open: report every failure in-band
+            log.warning("ask stream failed: %s", _probe_error(exc), exc_info=not isinstance(exc, DEPENDENCY_ERRORS))
+            yield _sse({"type": "error", "message": _probe_error(exc)})
+        yield _sse({"type": "done"})
     return StreamingResponse(gen(), media_type="text/event-stream")
 
 

@@ -64,6 +64,10 @@ make serve                        # http://localhost:8000
 | `GET /readyz` | Readiness: `200 {"status":"ok","checks":{"db":"ok","qdrant":"ok"}}` when SQLite answers `SELECT 1` and Qdrant answers within 1 s; otherwise `503` with `"status":"degraded"` and the failing check's error in place of `"ok"`. Ollama is not checked. |
 | `GET /version` | `{"name":"ragio-lab","version":"<release-please version>","commit":"$GIT_SHA","built_at":"$BUILT_AT"}`; `commit` and `built_at` are `null` when the variable is unset. |
 
+### When Qdrant or Ollama is down
+
+`/api/search` and `/api/ask` answer `503` with a JSON `detail` naming the dependency error, for example `{"detail":"a dependency is unavailable: ResponseHandlingException: [Errno 111] Connection refused"}`. Only dependency failures (refused or timed-out connections, HTTP errors from Qdrant or Ollama) are a 503: a request that fails validation is still a `422`, and any other error is still a `500`. `/api/ask/stream` has already sent `200` and its headers when retrieval starts, so a failure there, before or during the answer, arrives in the stream as `{"type":"error","message":"…"}` followed by `{"type":"done"}`. The UI shows either kind of error in the answer box and re-enables Ask. `GET /readyz` says which dependency is down.
+
 ## Data model: parent → child
 
 ```
