@@ -84,7 +84,7 @@ Optional step 7, **deep listen**: `POST /api/listen {episode_id, start, end, pro
 | GET | `/api/episodes/{id}` | episode + windows (a readable, timestamped transcript) |
 | GET | `/api/search?q=` | retrieval only, grouped by episode |
 | POST | `/api/ask` | answer + sources (JSON) |
-| POST | `/api/ask/stream` | same, SSE: `sources` → `token`… → `done` |
+| POST | `/api/ask/stream` | same, SSE: `sources` → `token`… → `done`; on a failure `error` → `done` |
 | GET | `/api/clip?ep&start&end` | MP3 clip (≤10 min) |
 | POST | `/api/listen` | audio-native answer about a clip (≤3 min) |
 | GET | `/healthz` | liveness: `{"status":"ok"}`, touches no dependency (UPS-BE-10) |
@@ -92,6 +92,8 @@ Optional step 7, **deep listen**: `POST /api/listen {episode_id, start, end, pro
 | GET | `/version` | `{"name","version","commit","built_at"}`: the release-please version (`ragio.__version__`), `$GIT_SHA`, `$BUILT_AT`, null when unset (UPS-BE-11) |
 
 The three probes are unauthenticated and sent with `Cache-Control: no-store`.
+
+`/api/search` and `/api/ask` answer 503 when a dependency is down (an `OSError` such as a refused or timed-out connection, an `httpx` error, a Qdrant API error or an Ollama `ResponseError`), with `detail` carrying the error's one-line reason; validation errors stay 422 and anything else stays 500, so real bugs are not disguised as outages. `/api/ask/stream` cannot change its status once the stream is open, so every failure there becomes an `{"type":"error","message":…}` event followed by `{"type":"done"}`, and no exception escapes the generator. The UI checks `res.ok`, renders `detail` or the `error` event in the answer box, and re-enables Ask in a `finally` (issue #21).
 
 `/api/clip` and `/api/listen` share their failure codes: 400 when `start` or `end` is not finite, `start` is negative or the window is empty or over the limit; 404 for an unknown episode or one without downloaded audio; 503 when ffmpeg is not on `PATH`; 502 when ffmpeg fails, with its last stderr line. ffmpeg writes to a temp file beside the cache path that keeps the real extension, and the file is moved into place only on success, so a failed cut caches nothing and a retry cuts again. A cut recreates `data/clips/` if it was deleted while the server runs.
 
